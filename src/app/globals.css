@@ -1,0 +1,542 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+  --crb-page: #141415;
+  --crb-surface: #19191b;
+  --crb-raised: #232325;
+  --crb-line: rgb(237 237 237 / 8%);
+  --crb-text: #ededed;
+  --crb-secondary: #a1a1a6;
+  --crb-muted: #85858b;
+  --crb-accent: #9146ff;
+}
+body { background: var(--crb-page); color: var(--crb-text); font-family: var(--font-geist-sans), system-ui, sans-serif; }
+body.overlay, body:has([data-testid="overlay"]) { background: transparent; overflow: hidden; }
+
+/* Keep the interface hierarchy readable even where older components carry display utility classes. */
+body :where(.font-bold, .font-extrabold, .font-black) { font-weight: 600 !important; }
+body :where(.uppercase) { text-transform: none !important; }
+body :where([class*="tracking-"]) { letter-spacing: normal !important; }
+body :where(.italic) { font-style: normal !important; }
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px) rotate(-1deg); }
+  75% { transform: translateX(6px) rotate(1deg); }
+}
+@keyframes slidein {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@keyframes flash { 0% { opacity: .7; } 100% { opacity: 0; } }
+@keyframes pop {
+  0% { opacity: 0; transform: translate(-50%, 0) scale(.6); }
+  15% { opacity: 1; transform: translate(-50%, -14px) scale(1.15); }
+  100% { opacity: 0; transform: translate(-50%, -70px) scale(1); }
+}
+@keyframes burst {
+  0% { opacity: 1; transform: rotate(var(--a)) translateX(0); }
+  100% { opacity: 0; transform: rotate(var(--a)) translateX(70px); }
+}
+@keyframes banner {
+  0% { opacity: 0; transform: scale(2); }
+  15% { opacity: 1; transform: scale(1); }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: scale(.95); }
+}
+@keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pulsein { 0% { transform: scale(.7); opacity: .2; } 60% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+@keyframes confetti { 0% { transform: translateY(0) rotate(0); } 100% { transform: translateY(110vh) rotate(720deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+}
+/* Chat Raid Boss HUD additions — transform/opacity only (GPU-composited, no layout/paint thrash). */
+@keyframes hud-sheen {
+  0% { transform: translateX(-120%); }
+  55%, 100% { transform: translateX(520%); }
+}
+@keyframes hud-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes hud-rise {
+  from { opacity: 0; transform: translateY(14px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+/* Landing additions — transform/opacity only. Import after globals.css: @import "./globals-additions.css"; */
+@keyframes crb-drain {
+  0% { transform: scaleX(0.82); }
+  35% { transform: scaleX(0.63); }
+  60% { transform: scaleX(0.58); }
+  100% { transform: scaleX(0.21); }
+}
+@keyframes crb-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+/* BossArt additions — transform/opacity only. Import after globals.css: @import "./globals-additions.css"; */
+@keyframes crb-boss-aura {
+  0%, 100% { opacity: 0.55; transform: scale(0.94); }
+  50% { opacity: 1; transform: scale(1.04); }
+}
+@keyframes crb-boss-shadow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.65; transform: scale(0.86); }
+}
+@keyframes crb-boss-flap {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(10deg); }
+}
+@keyframes crb-boss-blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.08); }
+}
+@keyframes crb-boss-recoil {
+  0% { transform: translate(0, 0) scale(1, 1); }
+  18% { transform: translate(0, 4px) scale(1.08, 0.9); }
+  45% { transform: translate(0, -2px) scale(0.96, 1.05); }
+  70% { transform: translate(0, 0) scale(1.02, 0.98); }
+  100% { transform: translate(0, 0) scale(1, 1); }
+}
+@keyframes crb-boss-impact {
+  0% { opacity: 1; transform: scale(0.3) rotate(0deg); }
+  60% { opacity: 0.9; }
+  100% { opacity: 0; transform: scale(1.35) rotate(25deg); }
+}
+@keyframes crb-boss-tremble {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(-1px, 0.5px); }
+  50% { transform: translate(1px, -0.5px); }
+  75% { transform: translate(-0.5px, -1px); }
+}
+@keyframes crb-boss-flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+@keyframes crb-boss-throb {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.22); }
+}
+@keyframes crb-boss-steam {
+  0% { opacity: 0; transform: translateY(0) scale(0.6); }
+  30% { opacity: 0.75; }
+  100% { opacity: 0; transform: translateY(-18px) scale(1.4); }
+}
+@keyframes crb-boss-sweat {
+  0% { opacity: 0; transform: translateY(-2px); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(8px); }
+}
+@keyframes crb-boss-soul {
+  0% { opacity: 0; transform: translateY(6px); }
+  25% { opacity: 0.85; }
+  100% { opacity: 0; transform: translateY(-20px); }
+}
+/* Overlay status HUD + ErrorBoundary — transform/opacity only. Import after globals.css: @import "./globals-additions.css"; */
+@keyframes crb-hud-in {
+  from { opacity: 0; transform: translate3d(0, -10px, 0) scale(0.96); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+@keyframes crb-hud-out {
+  0%, 70% { opacity: 1; transform: translate3d(0, 0, 0); }
+  100% { opacity: 0; transform: translate3d(0, -8px, 0); }
+}
+@keyframes crb-hud-ping {
+  0% { opacity: 0.7; transform: scale(1); }
+  80%, 100% { opacity: 0; transform: scale(2.6); }
+}
+@keyframes crb-hud-breathe {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+@keyframes crb-hud-bounce {
+  0%, 80%, 100% { opacity: 0.35; transform: translateY(0); }
+  40% { opacity: 1; transform: translateY(-4px); }
+}
+@keyframes crb-hud-countdown {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+@keyframes crb-hud-spin {
+  to { transform: rotate(360deg); }
+}
+/* Arena polish — transform/opacity only (compositor-friendly for 1080p60 in OBS).
+   Import after globals.css: @import "./globals-additions.css"; */
+
+/* ---------- Combat feed ---------- */
+@keyframes crb-feed-in {
+  from { opacity: 0; transform: translateX(-14px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes crb-feed-punch {
+  0% { opacity: 0; transform: translateX(-28px) scale(1.08); }
+  45% { opacity: 1; transform: translateX(4px) scale(1.02); }
+  100% { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes crb-feed-tint {
+  0% { opacity: 1; transform: scaleX(0.2); }
+  20% { opacity: 1; transform: scaleX(1); }
+  100% { opacity: 0.4; transform: scaleX(1); }
+}
+@keyframes crb-feed-sheen {
+  0% { opacity: 0; transform: translateX(-100%); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(320%); }
+}
+
+/* ---------- Leaderboard ---------- */
+@keyframes crb-row-in {
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes crb-row-flash {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes crb-plate-pop {
+  0% { transform: scale(1.4) rotate(-10deg); }
+  60% { transform: scale(0.94) rotate(2deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+@keyframes crb-rank-flag {
+  0% { opacity: 0; transform: translateY(6px); }
+  15% { opacity: 1; transform: translateY(0); }
+  75% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-4px); }
+}
+
+/* ---------- Damage numbers & impacts ---------- */
+@keyframes crb-pop-hit {
+  0% { opacity: 0; transform: translate(-50%, 6px) scale(0.5); }
+  16% { opacity: 1; transform: translate(-50%, -10px) scale(1.15); }
+  30% { transform: translate(-50%, -14px) scale(1); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--dx, 0px)), -58px) scale(0.9); }
+}
+@keyframes crb-pop-crit {
+  0% { opacity: 0; transform: translate(-50%, 0) scale(2.4) rotate(-10deg); }
+  12% { opacity: 1; transform: translate(-50%, -6px) scale(0.88) rotate(-4deg); }
+  22% { transform: translate(-50%, -10px) scale(1.14) rotate(-3deg); }
+  32% { transform: translate(-50%, -12px) scale(1) rotate(-3deg); }
+  72% { opacity: 1; transform: translate(calc(-50% + var(--dx, 0px) * 0.5), -34px) scale(1) rotate(-3deg); }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--dx, 0px)), -66px) scale(0.94) rotate(-3deg); }
+}
+@keyframes crb-pop-ult {
+  0% { opacity: 0; transform: translate(-50%, 0) scale(3.2); }
+  14% { opacity: 1; transform: translate(-50%, -8px) scale(0.9); }
+  24% { transform: translate(-50%, -10px) scale(1.1); }
+  34% { transform: translate(-50%, -12px) scale(1); }
+  76% { opacity: 1; transform: translate(-50%, -26px) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -56px) scale(1.06); }
+}
+@keyframes crb-pop-heal {
+  0% { opacity: 0; transform: translate(-50%, 10px) scale(0.6); }
+  20% { opacity: 1; transform: translate(-50%, -6px) scale(1.2); }
+  35% { transform: translate(-50%, -10px) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -60px) scale(1); }
+}
+@keyframes crb-spark {
+  0% { opacity: 1; transform: rotate(var(--a)) translateX(8px) scaleX(1.4); }
+  100% { opacity: 0; transform: rotate(var(--a)) translateX(var(--d, 70px)) scaleX(0.2); }
+}
+@keyframes crb-impact-ring {
+  0% { opacity: 0.9; transform: scale(0.55); }
+  100% { opacity: 0; transform: scale(1.45); }
+}
+@keyframes crb-hp-nick {
+  0% { opacity: 1; transform: scaleY(1.4); }
+  100% { opacity: 0; transform: scaleY(1); }
+}
+@keyframes crb-strike {
+  0% { opacity: 0; }
+  15% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes crb-danger-pulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.9; }
+}
+
+/* ---------- Ultimate & hype ---------- */
+@keyframes crb-ult-flash {
+  0% { opacity: 0; }
+  12% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes crb-ult-stripe {
+  0% { opacity: 0; transform: translateX(-100%) scaleY(1); }
+  14% { opacity: 1; transform: translateX(0) scaleY(1.15); }
+  22% { transform: translateX(0) scaleY(1); }
+  72% { opacity: 1; transform: translateX(2%) scaleY(1); }
+  100% { opacity: 0; transform: translateX(30%) scaleY(0.5); }
+}
+@keyframes crb-ready {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.14); }
+}
+@keyframes crb-hype-glow {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 1; }
+}
+
+/* ---------- Combo ---------- */
+@keyframes crb-combo-in {
+  0% { opacity: 0; transform: scale(0.6); }
+  55% { opacity: 1; transform: scale(1.12); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes crb-combo-slam {
+  0% { opacity: 0; transform: scale(1.9) rotate(-6deg); }
+  30% { opacity: 1; transform: scale(0.92) rotate(1deg); }
+  50% { transform: scale(1.06) rotate(0); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+@keyframes crb-combo-ring {
+  0% { opacity: 0.85; transform: scale(0.9); }
+  100% { opacity: 0; transform: scale(1.6); }
+}
+
+/* ---------- Phase transitions (total 1.8s, non-blocking) ---------- */
+@keyframes crb-edge-in {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes crb-banner-flash {
+  0% { opacity: 0; }
+  15% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes crb-banner-band {
+  0% { opacity: 0; transform: scaleY(0); }
+  8% { opacity: 1; transform: scaleY(1.18); }
+  14% { opacity: 1; transform: scaleY(1); }
+  80% { opacity: 1; transform: scaleY(1); }
+  100% { opacity: 0; transform: scaleY(0.2); }
+}
+@keyframes crb-banner-bar {
+  0% { opacity: 1; transform: scaleX(0); }
+  18% { opacity: 1; transform: scaleX(1); }
+  80% { opacity: 1; transform: scaleX(1); }
+  100% { opacity: 0; transform: scaleX(1); }
+}
+@keyframes crb-banner-title {
+  0% { opacity: 0; transform: translateX(-6%) scale(1.7); }
+  12% { opacity: 1; transform: translateX(0) scale(0.95); }
+  20% { transform: translateX(0) scale(1.03); }
+  26% { transform: translateX(0) scale(1); }
+  78% { opacity: 1; transform: translateX(1%) scale(1); }
+  100% { opacity: 0; transform: translateX(10%) scale(1); }
+}
+@keyframes crb-banner-kicker {
+  0%, 10% { opacity: 0; transform: translateY(6px); }
+  22% { opacity: 1; transform: translateY(0); }
+  78% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(0); }
+}
+@keyframes crb-banner-sheen {
+  0%, 12% { opacity: 0; transform: translateX(-150%); }
+  16% { opacity: 1; }
+  50% { opacity: 0; transform: translateX(450%); }
+  100% { opacity: 0; transform: translateX(450%); }
+}
+/* Studio control panel additions — transform/opacity only. Import after globals.css: @import "./globals-additions.css"; */
+@keyframes crb-studio-pop {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+@keyframes crb-studio-ring {
+  0% { opacity: 0.9; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.35); }
+}
+@keyframes crb-studio-rise {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes crb-studio-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.75); }
+}
+/* AchievementToasts — transform/opacity only. Import after globals.css: @import "./globals-additions.css"; */
+@keyframes crb-ach-in {
+  0% { opacity: 0; transform: translate3d(-28px, 0, 0) scale(0.92); }
+  60% { opacity: 1; transform: translate3d(3px, 0, 0) scale(1.02); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+@keyframes crb-ach-out {
+  from { opacity: 1; transform: translate3d(0, 0, 0); }
+  to { opacity: 0; transform: translate3d(-16px, 0, 0); }
+}
+@keyframes crb-ach-badge {
+  0% { opacity: 0; transform: scale(0) rotate(-90deg); }
+  65% { opacity: 1; transform: scale(1.18) rotate(6deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+@keyframes crb-ach-icon {
+  0% { opacity: 0; transform: scale(0.4); }
+  70% { opacity: 1; transform: scale(1.25); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes crb-ach-ring {
+  0% { opacity: 0.9; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.5); }
+}
+@keyframes crb-ach-sheen {
+  0% { opacity: 0; transform: translateX(-120%); }
+  25% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(380%); }
+}
+@keyframes crb-ach-timer {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+/* EndScreen (victory + defeat) — transform/opacity only, no filters. Append to globals-additions.css. */
+@keyframes crb-end-veil {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes crb-end-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes crb-end-wipe {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes crb-end-slam {
+  0% { opacity: 0; transform: scale(1.9) rotate(-4deg); }
+  45% { opacity: 1; transform: scale(0.94) rotate(0.5deg); }
+  70% { transform: scale(1.04) rotate(0deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+@keyframes crb-end-doom {
+  0% { opacity: 0; transform: translate(0, -60px) scale(1.15); }
+  35% { opacity: 1; transform: translate(0, 6px) scale(1); }
+  45% { transform: translate(-8px, 0) rotate(-1.5deg); }
+  55% { transform: translate(7px, 0) rotate(1.2deg); }
+  65% { transform: translate(-5px, 0) rotate(-0.8deg); }
+  78% { transform: translate(3px, 0) rotate(0.4deg); }
+  100% { opacity: 1; transform: translate(0, 0) rotate(0deg); }
+}
+@keyframes crb-end-card {
+  0% { opacity: 0; transform: translateY(36px) scale(0.86) rotate(-3deg); }
+  60% { opacity: 1; transform: translateY(-6px) scale(1.03) rotate(0.5deg); }
+  100% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
+}
+@keyframes crb-end-medal {
+  0% { opacity: 0; transform: scale(0.2); }
+  60% { opacity: 1; transform: scale(1.2); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes crb-end-sheen {
+  0% { opacity: 0; transform: translateX(-120%); }
+  30% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(420%); }
+}
+@keyframes crb-end-row {
+  from { opacity: 0; transform: translateX(-18px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+/* No `to`: animates into the element's own inline scaleX (its final value). */
+@keyframes crb-end-bar {
+  from { transform: scaleX(0); }
+}
+@keyframes crb-end-cta {
+  0% { opacity: 0; transform: translateY(24px) scale(0.95); }
+  60% { opacity: 1; transform: translateY(-3px) scale(1.01); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes crb-end-caret {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+@keyframes crb-end-rays {
+  from { opacity: 0; transform: scale(0.5); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes crb-end-confetti {
+  0% { opacity: 1; transform: translate3d(0, 0, 0) rotate(0deg); }
+  85% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(var(--sway, 0px), 780px, 0) rotate(var(--spin, 540deg)); }
+}
+@keyframes crb-end-gloat {
+  0% { opacity: 0; transform: translateY(20px) scale(0.7); }
+  60% { opacity: 1; transform: translateY(-4px) scale(1.08); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes crb-end-taunt {
+  from { opacity: 0; transform: translateX(-12px) scale(0.92); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes crb-end-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* The global rule shortens durations; also drop stagger delays so nothing waits hidden. */
+  .crb-end-root, .crb-end-root * { animation-delay: 0s !important; }
+}
+@keyframes crb-boss-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Only the selected boss portrait animates; the rest hold still to keep the grid calm and cheap. */
+.crb-boss-portrait[data-still="true"] *,
+.crb-boss-portrait[data-still="true"] {
+  animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crb-boss-portrait,
+  .crb-boss-portrait * {
+    animation: none !important;
+  }
+}
+/* RaidIntro: transform/opacity only, one short keyframe per element. */
+@keyframes crb-raid-band {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes crb-raid-slam {
+  from {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Reduced-motion replacement for crb-raid-band. */
+@keyframes crb-raid-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes crb-raid-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
